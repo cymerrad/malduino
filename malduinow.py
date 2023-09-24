@@ -1,5 +1,6 @@
 import click
 import colorsys
+import re
 from consts import BLINK, BLUE, CYAN, GREEN, LED_OFF, MAGENTA, RED, YELLOW
 from itertools import cycle
 
@@ -121,12 +122,22 @@ def enumerate_rainbow_colors(num_colors) -> str:
         # Increment the hue for the next color
         hue += hue_increment
 
+re_word_ = re.compile("(\S+)(\s+)")
+
 def generate_tao():
-    tao_book = open("tao.txt", "r").readlines()
+    tao_book = open("tao.txt", "r").read()
     script = PREAMBLE
 
-    for line, color in zip(tao_book, cycle(enumerate_rainbow_colors(16 ** 3))):
-        pass
+    word_it = re_word_.finditer(tao_book)
+
+    for match, color in zip(word_it, cycle(enumerate_rainbow_colors(16 ** 3))):
+        word, wc = match.groups()
+
+        script += f"STRING {word} "
+        if '\n' in wc:
+            script += "SHIFT ENTER"
+        script += color
+
 
 if __name__ == '__main__':
     dump_text()
